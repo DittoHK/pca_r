@@ -124,30 +124,40 @@ unknown_scaled <- scale(unknown_numeric,
                        scale = pca_result$scale)
 unknown_pca <- unknown_scaled %*% pca_result$rotation
 
-# Calculate position for each unknown sample (no replicates)
+# Determine number of PCs needed for >70% cumulative variance (moved up for dynamic calculation)
+pcs_needed <- which(cumulative_variance >= 70)[1]
+if (is.na(pcs_needed)) pcs_needed <- min(3, length(cumulative_variance))
+
+message("Number of PCs needed for >70% variance: ", pcs_needed)
+message("Cumulative variance with ", pcs_needed, " PCs: ", round(cumulative_variance[pcs_needed], 1), " %")
+
+# Create dynamic reference scores dataframe based on required PCs
+ref_scores <- data.frame(Sample = reference_samples$Sample)
+for (pc in 1:pcs_needed) {
+  ref_scores[[paste0("PC", pc)]] <- pca_result$x[, pc]
+}
+
+# Calculate position for each unknown sample using dynamic number of PCs
 unknown_results <- data.frame()
-ref_scores <- data.frame(
-  Sample = reference_samples$Sample,
-  PC1 = pca_result$x[, 1],
-  PC2 = pca_result$x[, 2],
-  PC3 = pca_result$x[, 3]
-)
 
 for (i in 1:nrow(unknown_samples)) {
   sample_id <- unknown_samples$Sample[i]
-  # Get single sample position
-  sample_pc1 <- unknown_pca[i, 1]
-  sample_pc2 <- unknown_pca[i, 2]
-  sample_pc3 <- unknown_pca[i, 3]
-    
-    # Calculate distances to all reference samples
-    distances <- sqrt((ref_scores$PC1 - sample_pc1)^2 + (ref_scores$PC2 - sample_pc2)^2)
-    
-    # Find closest match
-    closest_idx <- which.min(distances)
-    closest_sample <- ref_scores$Sample[closest_idx]
-    closest_distance <- distances[closest_idx]
-    
+  
+  # Get sample position for required number of PCs
+  sample_coords <- unknown_pca[i, 1:pcs_needed]
+  
+  # Calculate distances to all reference samples using dynamic number of PCs
+  distances <- numeric(nrow(ref_scores))
+  for (j in 1:nrow(ref_scores)) {
+    ref_coords <- as.numeric(ref_scores[j, 2:(pcs_needed+1)])  # Skip Sample column
+    distances[j] <- sqrt(sum((sample_coords - ref_coords)^2))
+  }
+  
+  # Find closest match
+  closest_idx <- which.min(distances)
+  closest_sample <- ref_scores$Sample[closest_idx]
+  closest_distance <- distances[closest_idx]
+  
   # Calculate correlation with closest sample
   unknown_composition <- as.numeric(unknown_numeric[i, ])
   closest_ref_idx <- which(reference_samples$Sample == closest_sample)[1]
@@ -155,15 +165,20 @@ for (i in 1:nrow(unknown_samples)) {
   
   correlation_coef <- cor(unknown_composition, closest_composition)
   
-  unknown_results <- rbind(unknown_results, data.frame(
+  # Create results dataframe with dynamic PC columns
+  result_row <- data.frame(
     Unknown_Sample = sample_id,
     Closest_Match = closest_sample,
     Distance = closest_distance,
-    Correlation = correlation_coef,
-    PC1 = sample_pc1,
-    PC2 = sample_pc2,
-    PC3 = sample_pc3
-  ))
+    Correlation = correlation_coef
+  )
+  
+  # Add PC coordinates dynamically
+  for (pc in 1:pcs_needed) {
+    result_row[[paste0("PC", pc)]] <- sample_coords[pc]
+  }
+  
+  unknown_results <- rbind(unknown_results, result_row)
 }
 
 # No threshold calculations - pure distance analysis
@@ -184,65 +199,77 @@ suppressWarnings({
 pdf(pdf_path, width = 11, height = 8.5)
 
 # Page 1: Summary Statistics and Results Table
-plot_data <- data.frame(
-  x = 1:10, y = 1:10
-)
-p1 <- ggplot(plot_data, aes(x, y)) + 
+# pcs_needed already calculated above for dynamic distance calculation
+
+# Create summary information plot
+pc_info <- paste0("PC", 1:pcs_needed, ": ", round(variance_explained[1:pcs_needed], 1), "%", collapse = " | ")
+cumulative_info <- round(cumulative_variance[pcs_needed], 1)
+
+# Create summary plot
+summary_plot <- ggplot() + 
   theme_void() +
-  ggtitle("pca sample identification - summary results") +
-  theme(plot.title = element_text(size = 16, hjust = 0.5, face = "bold"))
+  ggtitle("PCA Sample Identification - Summary Results") +
+  theme(plot.title = element_text(size = 16, hjust = 0.5, face = "bold")) +
+  annotate("text", x = 0.05, y = 0.8, 
+           label = paste0("ANALYSIS SUMMARY:\n",
+                         "• Dataset: ", nrow(data_all), " samples (", nrow(unknown_samples), " unknowns + ", nrow(reference_samples), " references) | ", ncol(reference_numeric), " elements analyzed\n",
+                         "• Principal Components: ", pc_info, " | Cumulative: ", cumulative_info, "% (≥70% threshold)\n",
+                         "• Method: Distance-based identification using ", pcs_needed, " principal components"),
+           hjust = 0, vjust = 1, size = 3.8, family = "mono") +
+  xlim(0, 1) + ylim(0, 1)
 
-# Create summary text
-summary_text <- paste0(
-  "Dataset Information:\n",
-  "• Total samples: ", nrow(data_all), " (", nrow(unknown_samples), " unknowns + ", nrow(reference_samples), " references)\n",
-  "• Elements analyzed: ", ncol(reference_numeric), " (", length(excluded_elements), " excluded for zero variance)\n",
-  "• PC1 variance: ", round(variance_explained[1], 2), "%\n",
-  "• PC2 variance: ", round(variance_explained[2], 2), "%\n",
-  "• Cumulative PC1+PC2: ", round(cumulative_variance[2], 2), "%"
-)
-
-# Add summary text to plot
-p1 <- p1 + annotate("text", x = 2, y = 8, label = summary_text, 
-                   hjust = 0, vjust = 1, size = 4, family = "mono")
-
-# Create simplified summary table with distance and correlation only
+# Create results table data
 results_summary <- unknown_results
 results_summary$Distance <- round(results_summary$Distance, 3)
 results_summary$Correlation <- round(results_summary$Correlation, 4)
-
-# Add PC coordinates for reference
 results_summary$PC1 <- round(results_summary$PC1, 2)
 results_summary$PC2 <- round(results_summary$PC2, 2)
 results_summary$PC3 <- round(results_summary$PC3, 2)
 
-# Create simplified table with key metrics only
-table_text <- "sample identification summary\n"
-table_text <- paste0(table_text, paste(rep("=", 75), collapse = ""), "\n")
-table_text <- paste0(table_text, sprintf("%-6s %-12s %-10s %-12s %-8s %-8s %-8s %-8s\n", 
-                                        "sample", "match", "distance", "correlation", "pc1", "pc2", "pc3", "rank"))
-table_text <- paste0(table_text, paste(rep("-", 85), collapse = ""), "\n")
-
 # Sort by distance for ranking
 results_sorted <- results_summary[order(results_summary$Distance), ]
-for (i in 1:nrow(results_sorted)) {
-  table_text <- paste0(table_text, sprintf("%-6s %-12s %-10s %-12s %-8s %-8s %-8s %-8s\n",
-                                          results_sorted$Unknown_Sample[i],
-                                          results_sorted$Closest_Match[i],
-                                          results_sorted$Distance[i],
-                                          results_sorted$Correlation[i],
-                                          results_sorted$PC1[i],
-                                          results_sorted$PC2[i],
-                                          results_sorted$PC3[i],
-                                          paste0("#", i)))
+results_sorted$Rank <- 1:nrow(results_sorted)
+
+# Create simplified table data (only Distance and Correlation)
+table_data <- data.frame(
+  Sample = results_sorted$Unknown_Sample,
+  Match = results_sorted$Closest_Match,
+  Distance = results_sorted$Distance,
+  Correlation = results_sorted$Correlation,
+  Rank = results_sorted$Rank
+)
+
+# Create a clean table visualization
+table_plot <- ggplot() + 
+  theme_void() +
+  annotate("text", x = 0.05, y = 0.95, 
+           label = "IDENTIFICATION RESULTS",
+           hjust = 0, vjust = 1, size = 4.5, fontface = "bold") +
+  annotate("text", x = 0.05, y = 0.85, 
+           label = sprintf("%-10s %-15s %-12s %-12s %-8s", 
+                          "Sample", "Closest Match", "Distance", "Correlation", "Rank"),
+           hjust = 0, vjust = 1, size = 3.5, family = "mono", fontface = "bold") +
+  annotate("text", x = 0.05, y = 0.80, 
+           label = paste(rep("-", 65), collapse = ""),
+           hjust = 0, vjust = 1, size = 3, family = "mono") +
+  xlim(0, 1) + ylim(0, 1)
+
+# Add table rows with better spacing
+for (i in 1:nrow(table_data)) {
+  y_pos <- 0.72 - (i-1) * 0.08
+  table_plot <- table_plot + 
+    annotate("text", x = 0.05, y = y_pos,
+             label = sprintf("%-10s %-15s %-12.3f %-12.4f %-8s",
+                            table_data$Sample[i],
+                            table_data$Match[i],
+                            table_data$Distance[i],
+                            table_data$Correlation[i],
+                            paste0("#", table_data$Rank[i])),
+             hjust = 0, vjust = 1, size = 3.2, family = "mono")
 }
 
-# Add analysis parameters information
-table_text <- paste0(table_text, paste(rep("-", 75), collapse = ""), "\n")
-table_text <- paste0(table_text, "analysis parameters:\n")
-table_text <- paste0(table_text, sprintf("• total elements analyzed: %d (from %d original)\n", ncol(reference_numeric), ncol(data_all)-1))
-table_text <- paste0(table_text, sprintf("• pc1 variance: %.1f%% | pc2 variance: %.1f%% | pc3 variance: %.1f%% | pc1+pc2: %.1f%%\n", 
-                                        variance_explained[1], variance_explained[2], variance_explained[3], cumulative_variance[2]))
+# Combine plots using grid.arrange
+p1 <- grid.arrange(summary_plot, table_plot, ncol = 1, heights = c(1, 2))
 
 # Export comprehensive summary table to separate text file (cross-platform)
 summary_path <- file.path(output_dir, "pca_summary_table.txt")
@@ -252,6 +279,30 @@ writeLines("pca sample identification - comprehensive summary table")
 writeLines(paste("Generated:", format(Sys.time(), "%Y-%m-%d %H:%M:%S")))
 writeLines("Data file: pca_data.csv")
 writeLines("")
+
+# Recreate simplified table_text for file output
+table_text <- "SAMPLE IDENTIFICATION RESULTS\n"
+table_text <- paste0(table_text, paste(rep("=", 65), collapse = ""), "\n")
+table_text <- paste0(table_text, sprintf("%-10s %-15s %-12s %-12s %-8s\n", 
+                                        "Sample", "Closest_Match", "Distance", "Correlation", "Rank"))
+table_text <- paste0(table_text, paste(rep("-", 65), collapse = ""), "\n")
+
+for (i in 1:nrow(results_sorted)) {
+  table_text <- paste0(table_text, sprintf("%-10s %-15s %-12.3f %-12.4f %-8s\n",
+                                          results_sorted$Unknown_Sample[i],
+                                          results_sorted$Closest_Match[i],
+                                          results_sorted$Distance[i],
+                                          results_sorted$Correlation[i],
+                                          paste0("#", i)))
+}
+
+table_text <- paste0(table_text, paste(rep("-", 65), collapse = ""), "\n")
+table_text <- paste0(table_text, "ANALYSIS SUMMARY:\n")
+table_text <- paste0(table_text, sprintf("• Dataset: %d samples (%d unknowns + %d references) | %d elements\n", 
+                                        nrow(data_all), nrow(unknown_samples), nrow(reference_samples), ncol(reference_numeric)))
+table_text <- paste0(table_text, sprintf("• Principal Components: %s | Cumulative: %.1f%% (≥70%% threshold)\n", 
+                                        pc_info, cumulative_info))
+
 writeLines(table_text)
 
 # Create comprehensive distance matrix for all unknown samples to all references
@@ -270,21 +321,27 @@ distance_matrix <- matrix(0, nrow = nrow(unknown_samples), ncol = length(ref_sam
 rownames(distance_matrix) <- paste("Sample", unknown_samples$Sample)
 colnames(distance_matrix) <- ref_sample_names
 
-# Calculate distances for each unknown sample to each reference
+# Calculate distances for each unknown sample to each reference using dynamic PCs
 for (i in 1:nrow(unknown_samples)) {
   sample_id <- unknown_samples$Sample[i]
-  sample_pc1 <- unknown_results$PC1[unknown_results$Unknown_Sample == sample_id]
-  sample_pc2 <- unknown_results$PC2[unknown_results$Unknown_Sample == sample_id]
+  
+  # Get sample coordinates for all required PCs
+  sample_coords <- numeric(pcs_needed)
+  for (pc in 1:pcs_needed) {
+    sample_coords[pc] <- unknown_results[[paste0("PC", pc)]][unknown_results$Unknown_Sample == sample_id]
+  }
   
   for (ref_name in ref_sample_names) {
     ref_indices <- which(reference_samples$Sample == ref_name)
     if (length(ref_indices) > 0) {
-      # Calculate mean position if multiple replicates
-      ref_pc1 <- mean(pca_result$x[ref_indices, 1])
-      ref_pc2 <- mean(pca_result$x[ref_indices, 2])
+      # Calculate mean position if multiple replicates for all required PCs
+      ref_coords <- numeric(pcs_needed)
+      for (pc in 1:pcs_needed) {
+        ref_coords[pc] <- mean(pca_result$x[ref_indices, pc])
+      }
       
-      # Calculate distance
-      distance <- sqrt((sample_pc1 - ref_pc1)^2 + (sample_pc2 - ref_pc2)^2)
+      # Calculate distance using all required PCs
+      distance <- sqrt(sum((sample_coords - ref_coords)^2))
       distance_matrix[i, ref_name] <- round(distance, 3)
     }
   }
@@ -355,7 +412,7 @@ for (ref_name in names(match_counts)) {
 
 sink()
 
-print(p1)
+# p1 is already printed by grid.arrange
 
 # Page 2: Scree Plot
 scree_data <- data.frame(
@@ -374,7 +431,7 @@ p2 <- ggplot(scree_data, aes(x = PC, y = Variance)) +
 
 print(p2)
 
-# Page 3: PCA Scores Plot with Unknown Projection
+# Page 3: PCA Scores Plot with Unknown Projection (PC1 vs PC2 only)
 scores_data <- data.frame(
   Sample = reference_samples$Sample,
   PC1 = pca_result$x[, 1],
@@ -406,69 +463,61 @@ p3 <- ggplot() +
 
 print(p3)
 
-# Page 4: PC1 vs PC3 Scores Plot
-unknown_plot_data_pc3 <- data.frame(
-  Sample = as.character(unknown_results$Unknown_Sample),
-  PC1 = unknown_results$PC1,
-  PC3 = unknown_results$PC3
-)
+# Dynamic PC plots based on cumulative variance >70% (already calculated above)
 
-scores_data_pc3 <- data.frame(
-  Sample = reference_samples$Sample,
-  PC1 = pca_result$x[, 1],
-  PC3 = pca_result$x[, 3]
-)
+# Generate all PC combination plots dynamically
+pc_combinations <- list()
+if (pcs_needed >= 2) {
+  for (i in 1:(pcs_needed-1)) {
+    for (j in (i+1):pcs_needed) {
+      pc_combinations[[length(pc_combinations) + 1]] <- c(i, j)
+    }
+  }
+}
 
-p4_pc3 <- ggplot() +
-  geom_point(data = scores_data_pc3, aes(x = PC1, y = PC3, color = Sample), 
-             alpha = 0.7, size = 2) +
-  geom_text(data = scores_data_pc3, aes(x = PC1, y = PC3, label = Sample),
-            vjust = -0.8, hjust = 0.5, size = 2, color = "darkblue", alpha = 0.8) +
-  geom_point(data = unknown_plot_data_pc3, aes(x = PC1, y = PC3), 
-             color = "red", size = 2.5, shape = 17) +
-  geom_text(data = unknown_plot_data_pc3, aes(x = PC1, y = PC3, label = Sample),
-            vjust = -1.2, hjust = 0.5, size = 2.5, color = "black", fontface = "bold") +
-  labs(title = "pca scores plot: PC1 vs PC3 with unknown sample projections",
-       x = paste0("PC1 (", round(variance_explained[1], 1), "%)"),
-       y = paste0("PC3 (", round(variance_explained[3], 1), "%)")) +
-  theme_minimal() +
-  theme(plot.title = element_text(size = 14, hjust = 0.5, face = "bold"),
-        legend.position = "right")
+# Skip the first combination (PC1 vs PC2) as it's already plotted
+if (length(pc_combinations) > 1) {
+  for (k in 2:length(pc_combinations)) {
+    pc_pair <- pc_combinations[[k]]
+    pc_x <- pc_pair[1]
+    pc_y <- pc_pair[2]
+    
+    # Create scores data for this PC combination
+    scores_data_dynamic <- data.frame(
+      Sample = reference_samples$Sample,
+      PCx = pca_result$x[, pc_x],
+      PCy = pca_result$x[, pc_y]
+    )
+    
+    # Unknown samples data for this PC combination
+    unknown_plot_data_dynamic <- data.frame(
+      Sample = as.character(unknown_results$Unknown_Sample),
+      PCx = unknown_pca[, pc_x],
+      PCy = unknown_pca[, pc_y]
+    )
+    
+    # Create plot
+    p_dynamic <- ggplot() +
+      geom_point(data = scores_data_dynamic, aes(x = PCx, y = PCy, color = Sample), 
+                 alpha = 0.7, size = 2) +
+      geom_text(data = scores_data_dynamic, aes(x = PCx, y = PCy, label = Sample),
+                vjust = -0.8, hjust = 0.5, size = 2, color = "darkblue", alpha = 0.8) +
+      geom_point(data = unknown_plot_data_dynamic, aes(x = PCx, y = PCy), 
+                 color = "red", size = 2.5, shape = 17) +
+      geom_text(data = unknown_plot_data_dynamic, aes(x = PCx, y = PCy, label = Sample),
+                vjust = -1.2, hjust = 0.5, size = 2.5, color = "black", fontface = "bold") +
+      labs(title = paste0("pca scores plot: PC", pc_x, " vs PC", pc_y, " with unknown sample projections"),
+           x = paste0("PC", pc_x, " (", round(variance_explained[pc_x], 1), "%)"),
+           y = paste0("PC", pc_y, " (", round(variance_explained[pc_y], 1), "%)")) +
+      theme_minimal() +
+      theme(plot.title = element_text(size = 14, hjust = 0.5, face = "bold"),
+            legend.position = "right")
+    
+    print(p_dynamic)
+  }
+}
 
-print(p4_pc3)
-
-# Page 5: PC2 vs PC3 Scores Plot
-unknown_plot_data_pc23 <- data.frame(
-  Sample = as.character(unknown_results$Unknown_Sample),
-  PC2 = unknown_results$PC2,
-  PC3 = unknown_results$PC3
-)
-
-scores_data_pc23 <- data.frame(
-  Sample = reference_samples$Sample,
-  PC2 = pca_result$x[, 2],
-  PC3 = pca_result$x[, 3]
-)
-
-p5_pc23 <- ggplot() +
-  geom_point(data = scores_data_pc23, aes(x = PC2, y = PC3, color = Sample), 
-             alpha = 0.7, size = 2) +
-  geom_text(data = scores_data_pc23, aes(x = PC2, y = PC3, label = Sample),
-            vjust = -0.8, hjust = 0.5, size = 2, color = "darkblue", alpha = 0.8) +
-  geom_point(data = unknown_plot_data_pc23, aes(x = PC2, y = PC3), 
-             color = "red", size = 2.5, shape = 17) +
-  geom_text(data = unknown_plot_data_pc23, aes(x = PC2, y = PC3, label = Sample),
-            vjust = -1.2, hjust = 0.5, size = 2.5, color = "black", fontface = "bold") +
-  labs(title = "pca scores plot: PC2 vs PC3 with unknown sample projections",
-       x = paste0("PC2 (", round(variance_explained[2], 1), "%)"),
-       y = paste0("PC3 (", round(variance_explained[3], 1), "%)")) +
-  theme_minimal() +
-  theme(plot.title = element_text(size = 14, hjust = 0.5, face = "bold"),
-        legend.position = "right")
-
-print(p5_pc23)
-
-# Page 6: Loadings Plot
+# Loadings Plot (page number depends on dynamic PC plots)
 loadings_data <- data.frame(
   Element = rownames(pca_result$rotation),
   PC1 = pca_result$rotation[, 1],
@@ -493,28 +542,34 @@ p6 <- ggplot(top_loadings, aes(x = PC1, y = PC2)) +
 
 print(p6)
 
-# Page 7: Complete Distance Matrix Visualization
+# Distance Matrix Visualization (page number depends on dynamic PC plots)
 # Create comprehensive distance data for all unknown-reference combinations
 all_distance_data <- data.frame()
 
 # Get all reference sample names
 ref_sample_names <- unique(reference_samples$Sample)
 
-# Calculate all distances
+# Calculate all distances using dynamic number of PCs
 for (i in 1:nrow(unknown_samples)) {
   sample_id <- unknown_samples$Sample[i]
-  sample_pc1 <- unknown_results$PC1[unknown_results$Unknown_Sample == sample_id]
-  sample_pc2 <- unknown_results$PC2[unknown_results$Unknown_Sample == sample_id]
+  
+  # Get sample coordinates for all required PCs
+  sample_coords <- numeric(pcs_needed)
+  for (pc in 1:pcs_needed) {
+    sample_coords[pc] <- unknown_results[[paste0("PC", pc)]][unknown_results$Unknown_Sample == sample_id]
+  }
   
   for (ref_name in ref_sample_names) {
     ref_indices <- which(reference_samples$Sample == ref_name)
     if (length(ref_indices) > 0) {
-      # Calculate mean position if multiple replicates
-      ref_pc1 <- mean(pca_result$x[ref_indices, 1])
-      ref_pc2 <- mean(pca_result$x[ref_indices, 2])
+      # Calculate mean position if multiple replicates for all required PCs
+      ref_coords <- numeric(pcs_needed)
+      for (pc in 1:pcs_needed) {
+        ref_coords[pc] <- mean(pca_result$x[ref_indices, pc])
+      }
       
-      # Calculate distance
-      distance <- sqrt((sample_pc1 - ref_pc1)^2 + (sample_pc2 - ref_pc2)^2)
+      # Calculate distance using all required PCs
+      distance <- sqrt(sum((sample_coords - ref_coords)^2))
       
       all_distance_data <- rbind(all_distance_data, data.frame(
         Unknown_Sample = paste("Sample", sample_id),
@@ -540,11 +595,12 @@ p7 <- ggplot(all_distance_data, aes(x = Reference_Sample, y = Unknown_Sample, fi
 
 print(p7)
 
-# Individual Analysis for each unknown sample
+# Individual Analysis for all unknown samples
 # Calculate element variability across all reference samples
 element_variability <- apply(reference_numeric, 2, var, na.rm = TRUE)
 top_variable_elements <- names(sort(element_variability, decreasing = TRUE)[1:20])
 
+# Generate plots for all unknown samples
 for (i in 1:nrow(unknown_samples)) {
   sample_id <- unknown_samples$Sample[i]
   # Get composition of unknown sample
@@ -607,11 +663,24 @@ for (i in 1:nrow(unknown_samples)) {
     print(p_correlation)
     
     # Page B: Distance Ranking for this sample
-    # Calculate distances from this sample to all reference samples
+    # Calculate distances from this sample to all reference samples using dynamic PCs
+    distances_to_refs <- numeric(nrow(ref_scores))
+    
+    # Get unknown sample coordinates for all required PCs
+    unknown_coords <- numeric(pcs_needed)
+    for (pc in 1:pcs_needed) {
+      unknown_coords[pc] <- unknown_results[[paste0("PC", pc)]][unknown_results$Unknown_Sample == sample_id]
+    }
+    
+    # Calculate distance to each reference sample
+    for (j in 1:nrow(ref_scores)) {
+      ref_coords <- as.numeric(ref_scores[j, 2:(pcs_needed+1)])  # Skip Sample column
+      distances_to_refs[j] <- sqrt(sum((unknown_coords - ref_coords)^2))
+    }
+    
     sample_distances <- data.frame(
       Reference_Sample = ref_scores$Sample,
-      Distance = sqrt((ref_scores$PC1 - unknown_results$PC1[unknown_results$Unknown_Sample == sample_id])^2 + 
-                     (ref_scores$PC2 - unknown_results$PC2[unknown_results$Unknown_Sample == sample_id])^2)
+      Distance = distances_to_refs
     )
     
     # Sort by distance and assign quality
