@@ -1,0 +1,63 @@
+=== complete pca results ===
+generated: 2025-08-23 16:06:48
+
+1. input file:
+data file: pca_data.csv
+
+2. dataset information:
+total samples: 22
+unknown samples (1-12): 5
+reference samples: 17
+number of elements: 20
+pc1 variance explained: 33.13 %
+pc2 variance explained: 30.6 %
+cumulative pc1+pc2: 63.73 %
+
+3. unknown sample identification results:
+unknown sample evian_birke2010 :
+  closest match: evian_petraccia2006
+  distance in pca space: 0.0284
+  correlation coefficient: 1
+
+unknown sample perrier_misund1999 :
+  closest match: perrier_quattrini2016
+  distance in pca space: 0.1244
+  correlation coefficient: 1
+
+unknown sample volvic_reimann2010 :
+  closest match: evian_petraccia2006
+  distance in pca space: 0.0464
+  correlation coefficient: 0.9192
+
+unknown sample vittel_quattrini2016 :
+  closest match: vittel_birke2010
+  distance in pca space: 0.2248
+  correlation coefficient: 1
+
+unknown sample gerolsteiner_petraccia2006 :
+  closest match: gerolsteiner_reimann2010
+  distance in pca space: 0.0979
+  correlation coefficient: 1
+
+5. complete distance ranking:
+sample	closest_match	distance	correlation	quality
+evian_birke2010 	 evian_petraccia2006 	 0.0284 	 1
+perrier_misund1999 	 perrier_quattrini2016 	 0.1244 	 1
+volvic_reimann2010 	 evian_petraccia2006 	 0.0464 	 0.9192
+vittel_quattrini2016 	 vittel_birke2010 	 0.2248 	 1
+gerolsteiner_petraccia2006 	 gerolsteiner_reimann2010 	 0.0979 	 1
+
+6. principal components variance:
+pc 1 :  33.13 % (cumulative:  33.13 %)
+pc 2 :  30.6 % (cumulative:  63.73 %)
+pc 3 :  12.83 % (cumulative:  76.57 %)
+pc 4 :  10.98 % (cumulative:  87.54 %)
+pc 5 :  4.86 % (cumulative:  92.41 %)
+pc 6 :  3.86 % (cumulative:  96.27 %)
+pc 7 :  2.05 % (cumulative:  98.32 %)
+pc 8 :  1 % (cumulative:  99.31 %)
+pc 9 :  0.44 % (cumulative:  99.75 %)
+pc 10 :  0.13 % (cumulative:  99.88 %)
+
+7. excluded elements:
+no elements excluded - all elements used in analysis

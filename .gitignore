@@ -1,0 +1,17 @@
+# Publication files
+*.docx
+create_indexed_publication.R
+
+# R intermediate files
+*.RData
+*.Rhistory
+.Rproj.user/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*~
+*.tmp
+*.temp

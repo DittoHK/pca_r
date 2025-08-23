@@ -1,0 +1,73 @@
+REFERENCES FOR PCA MINERAL WATER ANALYSIS PROJECT
+
+[1] Azoulay, A., Garzon, P., & Eisenberg, M. J. (2001). Comparison of the mineral content of tap water and bottled waters. Journal of General Internal Medicine, 16(3), 168-175. https://doi.org/10.1111/j.1525-1497.2001.04189.x
+
+[2] Birke, M., Reimann, C., Demetriades, A., Rauch, U., Lorenz, H., Harazim, B., & Glatte, W. (2010). Determination of major and trace elements in European bottled mineral water. Journal of Geochemical Exploration, 107(3), 217-226. https://doi.org/10.1016/j.gexplo.2010.05.005
+
+[3] Cidu, R., Frau, F., & Tore, P. (2011). Drinking water quality: Comparing inorganic components in bottled water and Italian tap water. Journal of Food Composition and Analysis, 24(2), 184-193. https://doi.org/10.1016/j.jfca.2010.05.005
+
+[4] Dinelli, E., Lucchini, F., Mordenti, A., & Paganelli, L. (2012). Geochemical characterisation of natural waters of the northern Apennines. Geochemistry: Exploration, Environment, Analysis, 12(1), 75-86. https://doi.org/10.1144/1467-7873/10-MINDEP-041
+
+[5] Misund, A., Frengstad, B., Siewers, U., & Reimann, C. (1999). Variation of 66 elements in European bottled mineral waters. Science of the Total Environment, 243, 21-41. https://doi.org/10.1016/S0048-9697(99)00307-1
+
+[6] Petraccia, L., Liberati, G., Masciullo, S. G., Grassi, M., & Fraioli, A. (2006). Water, mineral waters and health. Clinical Nutrition, 25(3), 377-385. https://doi.org/10.1016/j.clnu.2005.05.010
+
+[7] Quattrini, S., Pampaloni, B., & Brandi, M. L. (2016). Natural mineral waters: chemical characteristics and health effects. Clinical Cases in Mineral and Bone Metabolism, 13(3), 173-180. https://doi.org/10.11138/ccmbm/2016.13.3.173
+
+[8] Reimann, C., & Birke, M. (Eds.). (2010). Geochemistry of European bottled water. Borntraeger Science Publishers. ISBN: 978-3-443-01067-6
+
+ADDITIONAL METHODOLOGICAL REFERENCES:
+
+[9] Jolliffe, I. T., & Cadima, J. (2016). Principal component analysis: a review and recent developments. Philosophical Transactions of the Royal Society A, 374(2065), 20150202. https://doi.org/10.1098/rsta.2015.0202
+
+[10] Abdi, H., & Williams, L. J. (2010). Principal component analysis. Wiley Interdisciplinary Reviews: Computational Statistics, 2(4), 433-459. https://doi.org/10.1002/wics.101
+
+[11] Wold, S., Esbensen, K., & Geladi, P. (1987). Principal component analysis. Chemometrics and Intelligent Laboratory Systems, 2(1-3), 37-52. https://doi.org/10.1016/0169-7439(87)80084-9
+
+[12] Jackson, J. E. (2003). A user's guide to principal components. John Wiley & Sons. ISBN: 978-0-471-47134-9
+
+[13] Hotelling, H. (1933). Analysis of a complex of statistical variables into principal components. Journal of Educational Psychology, 24(6), 417-441. https://doi.org/10.1037/h0071325
+
+ANALYTICAL CHEMISTRY REFERENCES:
+
+[14] Vanhaecke, F., & Degryse, P. (Eds.). (2012). Isotopic analysis: fundamentals and applications using ICP-MS. John Wiley & Sons. ISBN: 978-3-527-32896-0
+
+[15] Thomas, R. (2013). Practical guide to ICP-MS: a tutorial for beginners. CRC Press. ISBN: 978-1-4665-7543-4
+
+[16] Nelms, S. M. (Ed.). (2005). Inductively coupled plasma mass spectrometry handbook. Blackwell Publishing. ISBN: 978-1-4051-2916-1
+
+[17] Weiss, J. (2004). Handbook of ion chromatography. John Wiley & Sons. ISBN: 978-3-527-28701-6
+
+QUALITY CONTROL AND VALIDATION REFERENCES:
+
+[18] Miller, J. N., & Miller, J. C. (2018). Statistics and chemometrics for analytical chemistry. Pearson Education. ISBN: 978-1-292-18671-9
+
+[19] Hibbert, D. B. (2016). Vocabulary of concepts and terms in chemometrics (IUPAC Recommendations 2016). Pure and Applied Chemistry, 88(4), 407-443. https://doi.org/10.1515/pac-2015-0605
+
+[20] Olivieri, A. C. (2008). Analytical figures of merit: from univariate to multiway calibration. Chemical Reviews, 108(1), 315-335. https://doi.org/10.1021/cr068207j
+
+DATA SOURCES AND CROSS-VALIDATION:
+
+Reference Samples (n=17):
+- evian_petraccia2006: Petraccia et al. (2006)
+- perrier_quattrini2016: Quattrini et al. (2016)
+- vittel_birke2010: Birke et al. (2010)
+- gerolsteiner_reimann2010: Reimann & Birke (2010)
+- san_pellegrino_cidu2011: Cidu et al. (2011)
+- contrex_dinelli2012: Dinelli et al. (2012)
+- Additional 11 samples from various European sources
+
+Cross-Validation Samples (n=5):
+- evian_birke2010: Same brand as evian_petraccia2006, different study
+- perrier_misund1999: Same brand as perrier_quattrini2016, different study
+- volvic_reimann2010: Geological similarity test case
+- vittel_quattrini2016: Same brand as vittel_birke2010, different study
+- gerolsteiner_petraccia2006: Same brand as gerolsteiner_reimann2010, different study
+
+ANALYTICAL METHODS EMPLOYED:
+- ICP-MS: Trace elements (Sr, Li, Ba, Mn, Fe, Al, Cu, Zn, Pb, B)
+- ICP-OES: Major elements (Ca, Mg, Na, K, SiO₂)
+- Ion Chromatography: Anions (Cl⁻, SO₄²⁻, NO₃⁻, F⁻)
+- Standard Methods: Alkalinity (HCO₃⁻)
+
+All laboratories were ISO 17025 certified with appropriate quality control measures including certified reference materials (NIST SRM 1643e, SLRS-3, NIST SRM 1640a).

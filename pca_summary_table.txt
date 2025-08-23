@@ -1,0 +1,180 @@
+pca sample identification - comprehensive summary table
+Generated: 2025-08-23 16:06:47
+Data file: pca_data.csv
+
+sample identification summary
+===========================================================================
+sample match        distance   correlation  pc1      pc2      pc3      rank    
+-------------------------------------------------------------------------------------
+evian_birke2010 evian_petraccia2006 0.028      1            1.02     -2.28    -0.89    #1      
+volvic_reimann2010 evian_petraccia2006 0.046      0.9192       1.07     -2.25    -0.65    #2      
+gerolsteiner_petraccia2006 gerolsteiner_reimann2010 0.098      1            -4.84    -2.59    -3.36    #3      
+perrier_misund1999 perrier_quattrini2016 0.124      1            -0.02    -1.61    4.47     #4      
+vittel_quattrini2016 vittel_birke2010 0.225      1            -0.75    -0.61    1.4      #5      
+---------------------------------------------------------------------------
+analysis parameters:
+• total elements analyzed: 20 (from 21 original)
+• pc1 variance: 33.1% | pc2 variance: 30.6% | pc3 variance: 12.8% | pc1+pc2: 63.7%
+
+
+
+comprehensive distance matrix:
+Unknown samples (rows) vs Reference samples (columns)
+====================================================================================================
+Sample    aqua_pann arrowhead badoit_di buxton_mi contrex_r crystal_g dasani_az evian_pet fiji_azou gerolstei highland_ perrier_q poland_sp san_pelle spa_reine vittel_bi volvic_mi 
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Sample evian_birke20101.007     2.424     8.074     1.973     5.552     2.795     10.045    0.028     2.279     5.818     1.169     1.263     2.05      6.292     1.194     2.632     0.194     
+Sample perrier_misund19991.667     2.365     6.839     1.462     4.316     2.738     9.634     1.264     1.757     4.86      1.528     0.124     2.405     5.235     2.029     1.451     1.217     
+Sample volvic_reimann20100.957     2.387     8.103     1.957     5.58      2.756     10.012    0.046     2.261     5.869     1.128     1.287     2.002     6.295     1.139     2.649     0.156     
+Sample vittel_quattrini20162.55      2.501     5.716     1.474     3.192     2.793     8.949     2.457     1.595     4.467     2.277     1.176     2.901     4.048     2.936     0.225     2.369     
+Sample gerolsteiner_petraccia20066.58      7.021     4.662     5.983     3.544     7.333     12.737    5.893     6.139     0.098     6.448     4.995     7.28      6.467     6.922     4.575     5.957     
+
+
+detailed sample breakdown:
+===========================================================================
+sample evian_birke2010:
+  • closest match: evian_petraccia2006
+  • distance: 0.028 (rank #1)
+  • correlation: 1.0000
+  • pca coordinates: pc1=1.02, pc2=-2.28, pc3=-0.89
+  • distances to all references:
+     1. evian_petraccia2006: 0.028 (closest)
+     2. volvic_misund1999: 0.194
+     3. aqua_panna_cidu2011: 1.007
+     4. highland_spring_birke2010: 1.169
+     5. spa_reine_reimann2010: 1.194
+     6. perrier_quattrini2016: 1.263
+     7. buxton_misund1999: 1.973
+     8. poland_spring_azoulay2001: 2.050
+     9. fiji_azoulay2001: 2.279
+    10. arrowhead_azoulay2001: 2.424
+    11. vittel_birke2010: 2.632
+    12. crystal_geyser_azoulay2001: 2.795
+    13. contrex_reimann2010: 5.552
+    14. gerolsteiner_reimann2010: 5.818
+    15. san_pellegrino_cidu2011: 6.292
+    16. badoit_dinelli2012: 8.074
+    17. dasani_azoulay2001: 10.045
+
+sample volvic_reimann2010:
+  • closest match: evian_petraccia2006
+  • distance: 0.046 (rank #2)
+  • correlation: 0.9192
+  • pca coordinates: pc1=1.07, pc2=-2.25, pc3=-0.65
+  • distances to all references:
+     1. evian_petraccia2006: 0.046 (closest)
+     2. volvic_misund1999: 0.156
+     3. aqua_panna_cidu2011: 0.957
+     4. highland_spring_birke2010: 1.128
+     5. spa_reine_reimann2010: 1.139
+     6. perrier_quattrini2016: 1.287
+     7. buxton_misund1999: 1.957
+     8. poland_spring_azoulay2001: 2.002
+     9. fiji_azoulay2001: 2.261
+    10. arrowhead_azoulay2001: 2.387
+    11. vittel_birke2010: 2.649
+    12. crystal_geyser_azoulay2001: 2.756
+    13. contrex_reimann2010: 5.580
+    14. gerolsteiner_reimann2010: 5.869
+    15. san_pellegrino_cidu2011: 6.295
+    16. badoit_dinelli2012: 8.103
+    17. dasani_azoulay2001: 10.012
+
+sample gerolsteiner_petraccia2006:
+  • closest match: gerolsteiner_reimann2010
+  • distance: 0.098 (rank #3)
+  • correlation: 1.0000
+  • pca coordinates: pc1=-4.84, pc2=-2.59, pc3=-3.36
+  • distances to all references:
+     1. gerolsteiner_reimann2010: 0.098 (closest)
+     2. contrex_reimann2010: 3.544
+     3. vittel_birke2010: 4.575
+     4. badoit_dinelli2012: 4.662
+     5. perrier_quattrini2016: 4.995
+     6. evian_petraccia2006: 5.893
+     7. volvic_misund1999: 5.957
+     8. buxton_misund1999: 5.983
+     9. fiji_azoulay2001: 6.139
+    10. highland_spring_birke2010: 6.448
+    11. san_pellegrino_cidu2011: 6.467
+    12. aqua_panna_cidu2011: 6.580
+    13. spa_reine_reimann2010: 6.922
+    14. arrowhead_azoulay2001: 7.021
+    15. poland_spring_azoulay2001: 7.280
+    16. crystal_geyser_azoulay2001: 7.333
+    17. dasani_azoulay2001: 12.737
+
+sample perrier_misund1999:
+  • closest match: perrier_quattrini2016
+  • distance: 0.124 (rank #4)
+  • correlation: 1.0000
+  • pca coordinates: pc1=-0.02, pc2=-1.61, pc3=4.47
+  • distances to all references:
+     1. perrier_quattrini2016: 0.124 (closest)
+     2. volvic_misund1999: 1.217
+     3. evian_petraccia2006: 1.264
+     4. vittel_birke2010: 1.451
+     5. buxton_misund1999: 1.462
+     6. highland_spring_birke2010: 1.528
+     7. aqua_panna_cidu2011: 1.667
+     8. fiji_azoulay2001: 1.757
+     9. spa_reine_reimann2010: 2.029
+    10. arrowhead_azoulay2001: 2.365
+    11. poland_spring_azoulay2001: 2.405
+    12. crystal_geyser_azoulay2001: 2.738
+    13. contrex_reimann2010: 4.316
+    14. gerolsteiner_reimann2010: 4.860
+    15. san_pellegrino_cidu2011: 5.235
+    16. badoit_dinelli2012: 6.839
+    17. dasani_azoulay2001: 9.634
+
+sample vittel_quattrini2016:
+  • closest match: vittel_birke2010
+  • distance: 0.225 (rank #5)
+  • correlation: 1.0000
+  • pca coordinates: pc1=-0.75, pc2=-0.61, pc3=1.40
+  • distances to all references:
+     1. vittel_birke2010: 0.225 (closest)
+     2. perrier_quattrini2016: 1.176
+     3. buxton_misund1999: 1.474
+     4. fiji_azoulay2001: 1.595
+     5. highland_spring_birke2010: 2.277
+     6. volvic_misund1999: 2.369
+     7. evian_petraccia2006: 2.457
+     8. arrowhead_azoulay2001: 2.501
+     9. aqua_panna_cidu2011: 2.550
+    10. crystal_geyser_azoulay2001: 2.793
+    11. poland_spring_azoulay2001: 2.901
+    12. spa_reine_reimann2010: 2.936
+    13. contrex_reimann2010: 3.192
+    14. san_pellegrino_cidu2011: 4.048
+    15. gerolsteiner_reimann2010: 4.467
+    16. badoit_dinelli2012: 5.716
+    17. dasani_azoulay2001: 8.949
+
+reference samples in dataset:
+--------------------------------------------------
+ 1. evian_petraccia2006
+ 2. perrier_quattrini2016
+ 3. volvic_misund1999
+ 4. vittel_birke2010
+ 5. contrex_reimann2010
+ 6. gerolsteiner_reimann2010
+ 7. san_pellegrino_cidu2011
+ 8. badoit_dinelli2012
+ 9. highland_spring_birke2010
+10. buxton_misund1999
+11. spa_reine_reimann2010
+12. aqua_panna_cidu2011
+13. fiji_azoulay2001
+14. crystal_geyser_azoulay2001
+15. arrowhead_azoulay2001
+16. poland_spring_azoulay2001
+17. dasani_azoulay2001
+
+match summary:
+------------------------------
+evian_petraccia2006: 2 samples (evian_birke2010, volvic_reimann2010)
+gerolsteiner_reimann2010: 1 samples (gerolsteiner_petraccia2006)
+perrier_quattrini2016: 1 samples (perrier_misund1999)
+vittel_birke2010: 1 samples (vittel_quattrini2016)
